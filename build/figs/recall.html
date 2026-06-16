@@ -1,0 +1,15 @@
+<figure class="fig static">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">Pass-key retrieval vs context length</p></div>
+  <div class="fig-body">
+    <table class="rc-table" role="img" aria-label="Needle-in-a-haystack (pass-key) retrieval accuracy as context grows from 8K to 128K tokens. Full attention stays near 1.0 the whole way (1.00, 1.00, 1.00, 1.00, 0.99). Mamba-2 falls from 0.99 to 0.49, 0.26, 0.13, 0.07. Gated DeltaNet falls from 1.00 to 0.50, 0.26, 0.13, 0.07. TTT-E2E falls from 1.00 to 0.46, 0.24, 0.13, 0.06. The fixed-state models collapse as context grows; full attention does not.">
+      <thead><tr><th class="mh">Pass-key retrieval</th><th>8K</th><th>16K</th><th>32K</th><th>64K</th><th>128K</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Full attention</td><td class="rc-cell rc-hi">1.00</td><td class="rc-cell rc-hi">1.00</td><td class="rc-cell rc-hi">1.00</td><td class="rc-cell rc-hi">1.00</td><td class="rc-cell rc-hi">0.99</td></tr>
+        <tr><td class="m">Mamba-2</td><td class="rc-cell rc-hi">0.99</td><td class="rc-cell rc-mid">0.49</td><td class="rc-cell rc-lo">0.26</td><td class="rc-cell rc-lo">0.13</td><td class="rc-cell rc-lo">0.07</td></tr>
+        <tr><td class="m">Gated DeltaNet</td><td class="rc-cell rc-hi">1.00</td><td class="rc-cell rc-mid">0.50</td><td class="rc-cell rc-lo">0.26</td><td class="rc-cell rc-lo">0.13</td><td class="rc-cell rc-lo">0.07</td></tr>
+        <tr><td class="m">TTT-E2E</td><td class="rc-cell rc-hi">1.00</td><td class="rc-cell rc-mid">0.46</td><td class="rc-cell rc-lo">0.24</td><td class="rc-cell rc-lo">0.13</td><td class="rc-cell rc-lo">0.06</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figcaption>Pass-key retrieval as the context grows. Full attention keeps near-perfect recall all the way to 128K. The fixed-state family, Mamba-2, Gated DeltaNet, and TTT, collapses toward zero, because a constant-size state cannot hold everything. That lost recall is the price of trading attention for a cheap fixed state (<a href="https://arxiv.org/abs/2512.23675">Tandon et al., 2025</a>).</figcaption>
+</figure>

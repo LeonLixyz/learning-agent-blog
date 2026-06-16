@@ -1,0 +1,52 @@
+.mm-svg{width:100%;height:auto;display:block;font-family:var(--sans)}
+.mm-block{fill:color-mix(in srgb,var(--weights) 8%,transparent);stroke:var(--weights);stroke-width:1.6}
+.mm-mlp{fill:color-mix(in srgb,var(--weights) 20%,transparent);stroke:var(--weights);stroke-width:1.4}
+.mm-attn{fill:var(--panel);stroke:var(--weights);stroke-width:1.4}
+.mm-title{fill:var(--ink);font-size:13px;font-weight:700}
+.mm-sub{fill:var(--faint);font-size:10.5px}
+.mm-tag{fill:var(--weights);font-size:10.5px;font-weight:700}
+.mm-out{fill:var(--ink);font-size:12px;font-weight:700}
+.mm-arr{stroke:var(--soft);stroke-width:1.6;fill:none}
+.mm-zone{fill:color-mix(in srgb,var(--context) 7%,transparent);stroke:color-mix(in srgb,var(--context) 32%,transparent);stroke-width:1}
+.mm-zlbl{fill:var(--faint);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.mm-clbl{fill:var(--faint);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.mm-chip{fill:var(--panel);stroke:var(--accent);stroke-width:1.3}
+.mm-chiptxt{fill:var(--ink);font-size:11px;font-weight:600}
+.mm-cell{fill:var(--context);stroke:color-mix(in srgb,var(--context) 55%,var(--line));stroke-width:1;fill-opacity:.8}
+.mm-lost{fill:var(--hippo);font-size:11.5px;font-weight:700}
+.mm-wipe rect{fill:color-mix(in srgb,var(--hippo) 16%,transparent);stroke:var(--hippo);stroke-width:1.3}
+.mm-wipe text{fill:var(--hippo);font-size:12px;font-weight:700}
+.mm-nowrite{stroke:var(--hippo);stroke-width:1.8;fill:none;opacity:.9}
+.mm-nox{fill:var(--hippo);font-size:15px;font-weight:800}
+.mm-nolbl{fill:var(--hippo);font-size:11px;font-weight:700}
+.mm-leg{fill:var(--soft);font-size:11px}
+.mm-sw-w{fill:var(--weights)}
+.mm-sw-c{fill:var(--context)}
+.mm-wipe{opacity:0;animation:mm-wipe 8.5s ease-in-out infinite}
+.mm-step{opacity:0;animation-duration:8.5s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+.mm-s1{animation-name:mm-c1}
+.mm-s2{animation-name:mm-c2}
+.mm-s3{animation-name:mm-c3}
+.mm-s4{animation-name:mm-c4}
+.mm-s5{animation-name:mm-c5}
+.mm-s6{animation-name:mm-c6}
+@keyframes mm-c1{0%{opacity:0}4%{opacity:1}55%{opacity:1}62%{opacity:0}100%{opacity:0}}
+@keyframes mm-c2{0%,11%{opacity:0}15%{opacity:1}55%{opacity:1}62%{opacity:0}100%{opacity:0}}
+@keyframes mm-c3{0%,19%{opacity:0}23%{opacity:1}55%{opacity:1}62%{opacity:0}100%{opacity:0}}
+@keyframes mm-c4{0%,27%{opacity:0}31%{opacity:1}55%{opacity:1}62%{opacity:0}100%{opacity:0}}
+@keyframes mm-c5{0%,35%{opacity:0}39%{opacity:1}55%{opacity:1}62%{opacity:0}100%{opacity:0}}
+@keyframes mm-c6{0%,43%{opacity:0}47%{opacity:1}55%{opacity:1}62%{opacity:0}100%{opacity:0}}
+@keyframes mm-wipe{0%,53%{opacity:0}59%{opacity:1}80%{opacity:1}86%{opacity:0}100%{opacity:0}}
+.mm-d1{animation-name:mm-d1}
+.mm-d2{animation-name:mm-d2}
+.mm-d3{animation-name:mm-d3}
+.mm-d4{animation-name:mm-d4}
+.mm-d5{animation-name:mm-d5}
+.mm-d6{animation-name:mm-d6}
+@keyframes mm-d1{0%{opacity:0}4%{opacity:1}62%{opacity:1}66%{opacity:0}100%{opacity:0}}
+@keyframes mm-d2{0%,11%{opacity:0}15%{opacity:1}64%{opacity:1}68%{opacity:0}100%{opacity:0}}
+@keyframes mm-d3{0%,19%{opacity:0}23%{opacity:1}66%{opacity:1}70%{opacity:0}100%{opacity:0}}
+@keyframes mm-d4{0%,27%{opacity:0}31%{opacity:1}68%{opacity:1}72%{opacity:0}100%{opacity:0}}
+@keyframes mm-d5{0%,35%{opacity:0}39%{opacity:1}70%{opacity:1}74%{opacity:0}100%{opacity:0}}
+@keyframes mm-d6{0%,43%{opacity:0}47%{opacity:1}72%{opacity:1}76%{opacity:0}100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.mm-step{opacity:1;animation:none}.mm-wipe{animation:none;opacity:0}}

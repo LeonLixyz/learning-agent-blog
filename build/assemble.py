@@ -1,0 +1,531 @@
+# -*- coding: utf-8 -*-
+# Build script for "Language Models Can Think, But Not Learn".
+# Run:  python3 build/assemble.py   ->  writes ../index.html
+# Reads figure sources from build/figs/<key>.{html,css}.
+import os
+HERE=os.path.dirname(os.path.abspath(__file__))
+FIGDIR=os.path.join(HERE,"figs")
+KEYS=["memory-map","recall","toolbox","tworoads","evolution","cls"]
+def fig(k): return open(os.path.join(FIGDIR,k+".html")).read()
+def figcss(k): return open(os.path.join(FIGDIR,k+".css")).read()
+FIGCSS="\n".join(figcss(k) for k in KEYS)
+
+BASE_CSS = """
+:root{
+  --bg:#fbfaf7;--panel:#ffffff;--ink:#1d1c1a;--soft:#5c574e;--faint:#8a8278;
+  --line:#e7e2d8;--line-strong:#d7d0c2;--accent:#3b5bdb;--accent-soft:#e8ecfb;
+  --weights:#475569;--context:#d9a23a;--inner:#dd6b3f;--hippo:#c2548a;--good:#3f9d6b;--partial:#c98a1e;
+  --shadow:0 1px 2px rgba(40,34,20,.05),0 6px 22px rgba(40,34,20,.06);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+html.dark{--bg:#16161a;--panel:#1f1f24;--ink:#ece9e3;--soft:#b3ada3;--faint:#857f76;
+  --line:#2c2c33;--line-strong:#3a3a42;--accent:#8aa2ff;--accent-soft:#23283d;
+  --weights:#94a3b8;--context:#e6b85c;--inner:#ef8a5f;--hippo:#e07aac;--partial:#e6b85c;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 30px rgba(0,0,0,.35);}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:18.5px;line-height:1.62;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:50;transition:width .1s linear}
+#themeToggle{position:fixed;top:14px;right:16px;z-index:51;font-family:var(--sans);font-size:13px;background:var(--panel);color:var(--soft);border:1px solid var(--line-strong);border-radius:999px;padding:7px 13px;cursor:pointer;box-shadow:var(--shadow)}
+#themeToggle:hover{color:var(--ink);border-color:var(--accent)}
+#tocToggle{position:fixed;top:14px;left:16px;z-index:51;font-family:var(--sans);font-size:13px;background:var(--panel);color:var(--soft);border:1px solid var(--line-strong);border-radius:999px;padding:7px 13px;cursor:pointer;box-shadow:var(--shadow);display:none}
+#tocToggle:hover{color:var(--ink);border-color:var(--accent)}
+.wrap{max-width:46rem;margin:0 auto;padding:0 22px}
+header.hero{max-width:46rem;margin:0 auto;padding:78px 22px 20px}
+.kicker{font-family:var(--sans);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 18px}
+h1{font-size:clamp(2rem,5.5vw,3.15rem);line-height:1.08;margin:0 0 16px;font-weight:800;letter-spacing:-.01em}
+.standfirst{font-size:1.16rem;color:var(--soft);line-height:1.52;margin:0 0 20px}
+.meta{font-family:var(--sans);font-size:13.5px;color:var(--faint);border-top:1px solid var(--line);padding-top:16px}
+article{padding-bottom:60px}
+h2{font-family:var(--sans);font-size:clamp(1.15rem,2.1vw,1.36rem);font-weight:700;letter-spacing:0;margin:38px 0 8px;line-height:1.28;scroll-margin-top:70px}
+h2 .num{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:.5ch}
+.part-head{font-family:var(--sans);font-size:clamp(1.55rem,3.2vw,2.05rem);font-weight:800;letter-spacing:0;text-transform:uppercase;color:var(--accent);margin:76px 0 8px;border-top:2px solid var(--line);padding-top:30px;line-height:1.14;scroll-margin-top:70px}
+h3{font-family:var(--sans);font-size:1.16rem;font-weight:700;margin:34px 0 6px;color:var(--ink)}
+p{margin:0 0 16px}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+a:hover{border-bottom-color:var(--accent)}
+strong{font-weight:700}em{font-style:italic}
+blockquote{margin:24px 0;padding:16px 22px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;font-size:1.04rem}
+blockquote p:last-child{margin:0}
+ol,ul{margin:0 0 18px;padding-left:1.4em}
+li{margin:0 0 9px}
+hr{border:none;border-top:1px solid var(--line);margin:46px 0}
+	code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:.08em .4em;border-radius:5px}
+	.deriv{font-family:var(--sans);font-size:14.5px;line-height:1.48;margin:22px 0;padding:14px 16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;background:color-mix(in srgb,var(--accent) 5%,transparent)}
+	.deriv p{margin:0 0 10px}.deriv p:last-child{margin-bottom:0}
+	.deriv .katex-display{margin:.55em 0}
+	table.data{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:15px;margin:22px 0}
+table.data th,table.data td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+table.data th{background:color-mix(in srgb,var(--accent) 8%,transparent);font-weight:700}
+table.data tr:nth-child(even) td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+.update-data{font-size:12.5px;line-height:1.35;min-width:760px}
+.update-data th,.update-data td{padding:8px 9px}
+.update-data td:first-child{white-space:nowrap;color:var(--ink)}
+.update-data td:last-child{font-size:12px}
+.katex-display{margin:.9em 0;overflow-x:auto;overflow-y:hidden}
+figure.fig{margin:34px -6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+@media(min-width:820px){figure.fig{margin:40px -52px}}
+.fig-head{padding:16px 22px 0;font-family:var(--sans)}
+.fig-tag{display:none}
+.fig-title{font-size:1.06rem;font-weight:700;margin:3px 0 0}
+.fig-body{padding:14px 22px 6px;overflow-x:auto}
+figcaption{font-family:var(--sans);font-size:13.5px;color:var(--faint);padding:6px 22px 18px;line-height:1.5}
+.fig-note{display:inline-block;font-family:var(--sans);font-size:11.5px;color:var(--faint);font-style:italic;margin-top:8px}
+.btn{font-family:var(--sans);font-size:14px;font-weight:600;background:var(--panel);color:var(--ink);border:1px solid var(--line-strong);border-radius:9px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 4px;font-family:var(--sans)}
+.readout{font-family:var(--sans);font-size:13px;color:var(--faint)}
+.refs{font-family:var(--sans);font-size:14px;color:var(--soft)}
+.refs ol{padding-left:1.6em}.refs li{margin-bottom:7px}
+.toc-top{font-family:var(--sans);margin:4px 0 34px;padding:12px 22px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:var(--shadow)}
+.toc-top-h{display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--sans);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:0;padding:6px 0;background:none;border:none;cursor:pointer;text-align:left}
+.toc-top-h:hover{color:var(--ink)}
+.tt-chev{font-size:13px;line-height:1;color:var(--soft);transition:transform .25s ease}
+.toc-top.collapsed .tt-chev{transform:rotate(-90deg)}
+.toc-body{overflow:hidden;transition:max-height .32s ease,opacity .22s ease;opacity:1}
+.toc-top.collapsed .toc-body{opacity:0}
+.tt-part{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.05em;text-transform:uppercase;margin:15px 0 5px}
+.tt-part:first-child{margin-top:8px}
+.tt-link{display:block;color:var(--soft);text-decoration:none;border-bottom:none;padding:3px 0 3px 14px;font-size:14.5px;line-height:1.45}
+.tt-link:hover{color:var(--ink)}
+footer{border-top:1px solid var(--line);margin-top:50px;padding:30px 0 80px;font-family:var(--sans);font-size:13.5px;color:var(--faint)}
+.toc{font-family:var(--sans);font-size:12.5px;line-height:1.4}
+.toc .part{font-weight:700;color:var(--faint);margin:14px 0 5px;font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+.toc a{display:block;color:var(--soft);padding:3px 0 3px 11px;border-left:2px solid transparent;text-decoration:none;border-bottom:none}
+.toc a:hover{color:var(--ink)}
+.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media(min-width:1380px){#toc{position:fixed;top:74px;left:24px;width:220px;max-height:82vh;overflow:auto;padding-right:6px;display:block}}
+@media(max-width:1379px){#tocToggle{display:block}
+  #toc{position:fixed;top:52px;left:14px;width:250px;max-height:74vh;overflow:auto;background:var(--panel);border:1px solid var(--line-strong);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);display:none;z-index:50}
+  #toc.open{display:block}}
+@media(max-width:640px){
+  #themeToggle{position:absolute}
+  header.hero{padding-top:84px}
+  .wrap{padding:0 20px}
+  figure.fig{margin-left:-8px;margin-right:-8px}
+  .fig-body{padding-left:14px;padding-right:14px;overflow-x:auto}
+  figcaption{padding-left:16px;padding-right:16px}
+  .update-data{min-width:0;border:0}
+  .update-data thead{display:none}
+  .update-data tbody,.update-data tr,.update-data td{display:block}
+  .update-data tr{border:1px solid var(--line);border-radius:8px;margin:0 0 10px;background:var(--panel);overflow:hidden}
+  .update-data td{border:0!important;padding:7px 10px}
+  .update-data td:first-child{white-space:normal;background:color-mix(in srgb,var(--accent) 7%,transparent);font-weight:800}
+  .update-data td:nth-child(2)::before{content:"State: ";font-weight:800;color:var(--accent)}
+  .update-data td:nth-child(3)::before{content:"Update: ";font-weight:800;color:var(--weights)}
+  .update-data td:nth-child(4)::before{content:"Signal: ";font-weight:800;color:var(--good)}
+  .update-data td:nth-child(5)::before{content:"Durable: ";font-weight:800;color:var(--hippo)}
+}
+/* forgetting boxes (d11) */
+.fbox-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.fbox-grid{grid-template-columns:1fr 1fr 1fr}}
+.fbox{font-family:var(--sans);border:1.5px solid var(--line-strong);border-radius:12px;padding:14px;background:var(--panel)}
+.fbox .tag{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.fbox h5{margin:4px 0 6px;font-size:14.5px}
+.fbox p{font-size:13px;color:var(--soft);margin:0}
+.fbox .mark{font-size:20px;float:right;line-height:1;font-weight:700}
+.fbox.ok{border-color:var(--good)}.fbox.ok .mark{color:var(--good)}
+.fbox.bad{border-color:var(--inner);background:color-mix(in srgb,var(--inner) 6%,transparent)}.fbox.bad .mark{color:var(--inner)}
+	/* dctx animated matrices */
+	.dctxsvg{width:100%;height:auto;display:block}
+.dctxsvg text{font-family:var(--sans)}
+.dctx-lbl{fill:var(--ink);font-size:13px;font-weight:700}
+.dctx-sub{fill:var(--faint);font-size:11px}
+.dctx-eq{fill:var(--soft);font-size:12px;font-family:ui-monospace,Menlo,monospace}
+.dctx-cell{fill:var(--accent);stroke:var(--line);stroke-width:1;transition:fill-opacity .5s ease}
+.dctx-cellw{fill:var(--weights)}
+.dctx-sign{fill:var(--accent);font-size:30px;font-weight:800}
+	.dctx-tok{fill:var(--inner);font-size:12.5px;font-weight:700}
+	"""
+
+DCTX_JS = """
+  (function(){
+    var svg=document.getElementById('dctx-svg'); if(!svg) return;
+    var ns='http://www.w3.org/2000/svg';
+    function el(t,a){var e=document.createElementNS(ns,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+    function txt(x,y,s,cls,an){var e=el('text',{x:x,y:y,'class':cls});if(an)e.setAttribute('text-anchor',an);e.textContent=s;svg.appendChild(e);return e;}
+    var N=5,cs=26,gp=4;
+    function grid(ox,oy,w){var c=[];for(var r=0;r<N;r++){c[r]=[];for(var k=0;k<N;k++){var rc=el('rect',{x:ox+k*(cs+gp),y:oy+r*(cs+gp),width:cs,height:cs,rx:4,'class':'dctx-cell'+(w?' dctx-cellw':'')});rc.style.fillOpacity='0.06';svg.appendChild(rc);c[r][k]=rc;}}return c;}
+    txt(107,42,'DeltaNet S  \\u00b7  context state','dctx-lbl','middle');
+    txt(553,42,'TTT-Linear W  \\u00b7  fast weights','dctx-lbl','middle');
+    var L=grid(34,66,false),R=grid(480,66,true);
+    txt(107,250,'S \\u2190 S + \\u03b2(v\\u209c \\u2212 S k\\u209c) k\\u209c\\u1d40','dctx-eq','middle');
+    txt(553,250,'W \\u2190 W + \\u03b7(v\\u209c \\u2212 W k\\u209c) k\\u209c\\u1d40','dctx-eq','middle');
+    txt(330,150,'\\u2248','dctx-sign','middle');
+    var tok=txt(330,118,'token 1','dctx-tok','middle');
+    txt(330,182,'same rank-1 write','dctx-sub','middle');
+    var T=[{r:1,c:3},{r:3,c:1},{r:0,c:4},{r:4,c:2}],sL=[],sR=[];
+    for(var i=0;i<N;i++){sL.push([0,0,0,0,0]);sR.push([0,0,0,0,0]);}
+    var step=0,timer=null,paused=false;
+    function settle(c,s){for(var r=0;r<N;r++)for(var k=0;k<N;k++)c[r][k].style.fillOpacity=(0.06+s[r][k]).toFixed(3);}
+    function wr(c,s,t){for(var j=0;j<N;j++)c[t.r][j].style.fillOpacity='0.55';for(var i=0;i<N;i++)c[i][t.c].style.fillOpacity='0.55';c[t.r][t.c].style.fillOpacity='0.95';for(var j2=0;j2<N;j2++)s[t.r][j2]=Math.min(0.5,s[t.r][j2]+0.1);for(var i2=0;i2<N;i2++)s[i2][t.c]=Math.min(0.5,s[i2][t.c]+0.1);s[t.r][t.c]=Math.min(0.62,s[t.r][t.c]+0.18);setTimeout(function(){settle(c,s);},560);}
+    function reset(){for(var r=0;r<N;r++)for(var k=0;k<N;k++){sL[r][k]=0;sR[r][k]=0;}settle(L,sL);settle(R,sR);}
+    function tick(){var i=step%(T.length+1);if(i<T.length){wr(L,sL,T[i]);wr(R,sR,T[i]);tok.textContent='token '+(i+1)+' \\u2192 same correction';}else{reset();tok.textContent='sequence ends \\u2192 wiped';}step++;}
+    function start(){if(!timer)timer=setInterval(tick,1350);}
+    function stop(){if(timer){clearInterval(timer);timer=null;}}
+    var btn=document.getElementById('dctx-toggle'),st=document.getElementById('dctx-status');
+    btn.onclick=function(){paused=!paused;if(paused){stop();btn.textContent='\\u25b6 play';st.textContent='paused';}else{start();btn.textContent='\\u23f8 pause';st.textContent='running\\u2026';}};
+    var red=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(red){paused=true;btn.textContent='\\u25b6 play';st.textContent='paused';[{r:1,c:3},{r:3,c:1}].forEach(function(t){for(var j=0;j<N;j++){sL[t.r][j]=0.3;sR[t.r][j]=0.3;}for(var i=0;i<N;i++){sL[i][t.c]=0.3;sR[i][t.c]=0.3;}});settle(L,sL);settle(R,sR);}else{tick();start();}
+  })();
+"""
+
+MAIN_JS = """
+document.addEventListener('DOMContentLoaded',function(){
+  var kt=0;
+  function rm(){if(window.renderMathInElement){renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\\\(',right:'\\\\)',display:false},{left:'\\\\[',right:'\\\\]',display:true}],throwOnError:false});}else if(kt++<40){setTimeout(rm,150);}}
+  rm();
+  var prog=document.getElementById('progress'),ticking=false;
+  window.addEventListener('scroll',function(){if(ticking)return;ticking=true;requestAnimationFrame(function(){var h=document.documentElement;prog.style.width=((h.scrollTop)/(h.scrollHeight-h.clientHeight||1)*100)+'%';ticking=false;});},{passive:true});
+  var root=document.documentElement,tt=document.getElementById('themeToggle'),saved=null;
+  try{saved=localStorage.getItem('theme');}catch(e){}
+  var pd=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if(saved==='dark'||(!saved&&pd))root.classList.add('dark');
+  tt.setAttribute('aria-pressed',root.classList.contains('dark'));
+  tt.addEventListener('click',function(){var d=root.classList.toggle('dark');tt.setAttribute('aria-pressed',d);try{localStorage.setItem('theme',d?'dark':'light');}catch(e){}});
+  // numbering (part.section) + TOC + scroll-spy
+  (function(){
+    var h2s=[];document.querySelectorAll('article h2 .num').forEach(function(sp){h2s.push(sp.parentNode);});
+    var parts=[{t:'I \\u00b7 What is learning',n:1},{t:'II \\u00b7 Long context is not the solution',n:4},{t:'III \\u00b7 How brains do it, and what we have tried',n:2},{t:'IV \\u00b7 Towards real self-improving agents',n:3}];
+    var labels=[];for(var p=0;p<parts.length;p++)for(var s=0;s<parts[p].n;s++)labels.push((p+1)+'.'+(s+1));
+    h2s.forEach(function(h,i){var lab=labels[i]||(i+1)+'';var sp=h.querySelector('.num');if(sp)sp.textContent=lab;h.id='sec-'+lab.replace('.','-');});
+    var toc=document.getElementById('toc-top');if(!toc)return;
+    var body=document.getElementById('toc-body')||toc;
+    var idx=0;
+    parts.forEach(function(pt){var hd=document.createElement('div');hd.className='tt-part';hd.textContent=pt.t;body.appendChild(hd);
+      for(var k=0;k<pt.n&&idx<h2s.length;k++,idx++){var hh=h2s[idx],a=document.createElement('a');a.className='tt-link';a.href='#'+hh.id;a.textContent=labels[idx]+'  '+hh.textContent.replace(/^\\s*[\\d.]+\\s*/,'');body.appendChild(a);}});
+    var rf=document.getElementById('refs-h');if(rf){var ra=document.createElement('a');ra.className='tt-link';ra.href='#refs-h';ra.textContent='References';body.appendChild(ra);}
+    var btn=document.getElementById('toc-toggle');
+    if(btn&&body!==toc){
+      var initiallyCollapsed=toc.classList.contains('collapsed');
+      btn.setAttribute('aria-expanded',String(!initiallyCollapsed));
+      body.style.maxHeight=initiallyCollapsed?'0px':body.scrollHeight+'px';
+      btn.addEventListener('click',function(){
+        var collapsed=toc.classList.toggle('collapsed');
+        btn.setAttribute('aria-expanded',String(!collapsed));
+        body.style.maxHeight=collapsed?'0px':body.scrollHeight+'px';
+      });
+      body.addEventListener('transitionend',function(){if(!toc.classList.contains('collapsed'))body.style.maxHeight='none';});
+      window.addEventListener('resize',function(){if(!toc.classList.contains('collapsed'))body.style.maxHeight='none';});
+    }
+  })();
+""" + DCTX_JS + """
+});
+"""
+
+# ---------- figure markup that stays hand-authored ----------
+DEQ = '''<figure class="fig static" id="fig-update-family">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">The recurrent-update family</p></div>
+  <div class="fig-body">
+    <p>Most efficient long-context alternatives replace the unbounded attention cache with a fixed recurrent state. The common template is: erase some old state, read what is stored for a key, write a correction, then read with the query.</p>
+    <p>$$S_t = A_t S_{t-1} + B_t\\,\\Delta_t,\\qquad \\Delta_t \\in \\{v_tk_t^\\top,\\;(v_t-S_{t-1}k_t)k_t^\\top,\\;-\\nabla\\ell_t\\}$$</p>
+    <table class="data update-data">
+      <thead><tr><th>Model</th><th>State that changes at token $t$</th><th>Update sketch</th><th>What the signal is</th><th>Durable?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Linear attention</strong></td><td>Matrix state $S$</td><td>$S_t=S_{t-1}+v_tk_t^\\top$</td><td>Blind Hebbian add; no read-before-write correction</td><td>No, reset per sequence</td></tr>
+        <tr><td><strong>DeltaNet</strong></td><td>Matrix state $S$</td><td>$S_t=S_{t-1}+\\beta_t(v_t-S_{t-1}k_t)k_t^\\top$</td><td>Delta rule: write only the prediction error for key $k_t$</td><td>No</td></tr>
+        <tr><td><strong>Gated DeltaNet</strong></td><td>Matrix state $S$</td><td>$S_t=\\alpha_tS_{t-1}+\\beta_t(v_t-S_{t-1}k_t)k_t^\\top$</td><td>Delta correction plus adaptive erasure gate</td><td>No</td></tr>
+        <tr><td><strong>Mamba</strong></td><td>SSM hidden state $h$</td><td>$h_t=\\bar A_t h_{t-1}+\\bar B_t x_t$</td><td>Input-dependent selective copy/forget, not a key-value delta rule</td><td>No</td></tr>
+        <tr><td><strong>Mamba-2 / SSD</strong></td><td>Structured SSM state</td><td>SSM recurrence with semiseparable / attention-dual form</td><td>Bridges SSM decay with attention-like mixing</td><td>No</td></tr>
+        <tr><td><strong>Kimi Delta Attention</strong></td><td>DeltaNet-style state with DPLR transition</td><td>Gated delta rule + finer channel-wise decay</td><td>Extends Gated DeltaNet; better finite-state memory management</td><td>No</td></tr>
+        <tr><td><strong>Gated DeltaNet-2</strong></td><td>DeltaNet-style state</td><td>Separate erase gate $b_t$ and write gate $w_t$</td><td>Decouples how much old key content to erase from how much new value to commit</td><td>No</td></tr>
+        <tr><td><strong>TTT-Linear</strong></td><td>Fast weights $W$ of a linear inner model</td><td>$W_t=W_{t-1}+\\eta(v_t-W_{t-1}k_t)k_t^\\top$</td><td>Gradient step on $\\tfrac12\\|Wk_t-v_t\\|^2$; algebraically DeltaNet</td><td>No, reset fast weights</td></tr>
+        <tr><td><strong>TTT-MLP</strong></td><td>Fast weights $\\theta$ of a small MLP</td><td>$\\theta_t=\\theta_{t-1}-\\eta\\nabla_\\theta\\ell(f_\\theta(x_t))$</td><td>Self-supervised gradient update; nonlinear and more expressive</td><td>No</td></tr>
+        <tr><td><strong>TTT-E2E</strong></td><td>Selected model weights during inference</td><td>$\\theta_t=\\theta_{t-1}-\\eta\\nabla_\\theta[-\\log p_\\theta(x_t\\mid x_{\\lt t})]$</td><td>Next-token learning on the actual context, meta-learned to adapt</td><td>Context-local unless explicitly saved</td></tr>
+      </tbody>
+    </table>
+    <p>The important distinction is not whether the variable is called <em>state</em> or <em>weights</em>. It is whether the write survives the sequence and can be consolidated without damaging old knowledge. These methods mostly improve long-context computation; they do not by themselves solve durable learning.</p>
+  </div>
+  <figcaption>Linear attention, DeltaNet, Gated DeltaNet, KDA, Gated DeltaNet-2, and TTT-Linear share a read-correct-write core. Mamba is a selective SSM cousin rather than a delta-rule model. TTT-MLP and TTT-E2E generalize the write into ordinary gradient descent on a richer inner model or selected model weights.</figcaption>
+</figure>'''
+
+DCTX = '''<figure class="fig" id="fig-deltanet-ttt">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">The same rank-one update: context state vs fast weights</p></div>
+  <div class="fig-body">
+    <svg class="dctxsvg" id="dctx-svg" viewBox="0 0 660 300" role="img" aria-label="Animation: DeltaNet writes a rank-one correction into sequence-local context state while TTT-Linear writes the same correction into fast weights"></svg>
+    <div class="controls"><button class="btn" id="dctx-toggle">&#9208; pause</button><span class="readout" id="dctx-status" style="margin-left:8px">running&hellip;</span></div>
+  </div>
+  <figcaption>DeltaNet and TTT-Linear are the clean identity. DeltaNet stores the correction in a sequence-local recurrent state $S$; TTT-Linear stores the same correction in a temporary linear weight matrix $W$. The math is the same rank-one write, but the storage location is different, and both are normally wiped unless another system saves and consolidates the result.</figcaption>
+</figure>'''
+
+D11 = '''<figure class="fig static">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">Where decay belongs: long-term store, not working memory</p></div>
+  <div class="fig-body">
+    <div class="fbox-grid">
+      <div class="fbox ok"><span class="mark">&#10003;</span><div class="tag">Working memory</div><h5>Keep everything</h5><p>Working memory should be lossless: full recall of the current context. This is what attention does, and it's correct.</p></div>
+      <div class="fbox ok"><span class="mark">&#10003;</span><div class="tag">Long-term</div><h5>Forget the details</h5><p>Consolidation into knowledge <em>should</em> drop particulars to form concepts. Forgetting here is abstraction, the point, not the cost.</p></div>
+      <div class="fbox bad"><span class="mark">&#10007;</span><div class="tag">The error</div><h5>Decay in working memory</h5><p>Mamba / SSM / linear attention / TTT bake forgetting into the working-memory state. Right idea, wrong layer.</p></div>
+    </div>
+  </div>
+  <figcaption>Forgetting-as-abstraction belongs in the slow long-term store. Compressed-state models misapply it to working memory, where attention's refusal to forget is exactly what you want.</figcaption>
+</figure>'''
+
+BODY = r'''
+<nav id="toc-top" class="toc-top collapsed" aria-label="Contents"><button id="toc-toggle" class="toc-top-h" aria-expanded="false" aria-controls="toc-body">Contents<span class="tt-chev" aria-hidden="true">&#9662;</span></button><div id="toc-body" class="toc-body"></div></nav>
+
+<p>In the movie Memento, the main character cannot form new memories. He has a conversation, solves a problem, learns a name, and minutes later it is all gone. To cope, he covers himself in tattoos and Polaroids and re-reads them every morning, just to work out who he is and what he is doing.</p>
+
+<p>This is exactly where a language model is today. After pretraining and post-training its weights are frozen: the durable store of everything it knows stops changing. Whatever it works out during a session lives only in the context window, its working memory, and the moment the session ends that is wiped. Inside that window it can <em>think</em>, but it cannot <em>learn</em>: nothing it figures out from new data or new experience becomes part of the model. As Richard Sutton puts it, deployed models spend almost all of their compute not learning from the experience they are having (<a href="https://www.dwarkesh.com/p/richard-sutton">Sutton, 2025</a>).</p>
+
+{{FIG:memory-map}}
+<p class="part-head">I &middot; What is learning</p>
+<h2><span class="num">1.</span>What learning is</h2>
+
+<p>Learning is not the same as having information nearby. A database has information. A context window has information. A learner is different: it turns experience into compressed, reusable knowledge and skills. If you read a proof, practice a serve, or get sick from a food, the point is not that you can replay the episode or recite the fact, but that later, in a situation similar but not the same, you can use what you took from it. That is generalization, and it is what learning is for.</p>
+
+<p>Why not just write the experience straight into a language model's weights with backpropagation? The catch is how knowledge forms. A model turns text into reliably stored, extractable knowledge only after it has seen a fact many times during training. Allen-Zhu and Li find that reaching a model's full storage capacity, roughly two bits per parameter, takes on the order of a thousand exposures per fact, and that training on ten times fewer exposures roughly halves what it retains (<a href="https://arxiv.org/abs/2404.05405">Allen-Zhu &amp; Li, 2024</a>). A corpus that states something once sits far below that, so the practical fix is to synthesize many diverse restatements and train on those (<a href="https://arxiv.org/abs/2409.07431">Yang et al., 2024</a>). This is the <strong>curse of learning</strong>: turning a single observation into knowledge the model can use and generalize from takes on the order of a thousand varied repetitions, while your source gives you one.</p>
+
+<p class="part-head">II &middot; Long context is not the solution</p>
+<h2><span class="num">2.</span>Long context as working memory</h2>
+
+<p>People have tried plenty of ways around the curse, and the most obvious is to not write to the weights at all: just keep everything in the context window or an external database. Context, the model's working memory, has a famous name: <strong>in-context learning</strong>. The name is misleading. Given a few examples in the prompt, a model gets better at the task without any training. That is impressive, but it is mostly <strong>inference</strong>: the model thinks with the evidence in front of it. The "update" is a change in the prompt, the cache, or the temporary state of the run, not a change in the durable learner.</p>
+
+<p>But why not just make the window enormous and pour everything in? Three reasons.</p>
+
+<ul>
+<li><strong>Data.</strong> To use a 100M-token window the model must be trained on tasks that truly need 100M-token integration, and that data barely exists, so effective context lags far behind the advertised number (<a href="https://arxiv.org/abs/2307.03172">Liu et al., 2023</a>; <a href="https://arxiv.org/abs/2404.06654">Hsieh et al., 2024</a>).</li>
+<li><strong>Compute.</strong> Every query re-reads the whole history, and attention's cost grows with the square of the context length, so past some point the window is simply too expensive to run.</li>
+<li><strong>No abstraction.</strong> A system that never compresses never builds skills; it re-reads the whole context and works each problem from scratch instead of getting better over time.</li>
+</ul>
+
+<p>There's a whole industry making that working memory go further: building external memory systems, compacting the conversation, shrinking the KV cache by eviction or quantization. These genuinely help: they stretch how long a context can run, which matters for long-document inference and for long-horizon <em>agents</em> that would otherwise overflow. All of them optimize the same thing: the <em>size and reach</em> of the working memory. They improve the conditions for thinking. They do not create a durable write. However much the context is compressed, it is gone when the session ends. Bigger, cheaper RAM is still RAM. The same applies to long-context-style updates: if the update lives only in the run, it is a better thought, not a learned change.</p>
+
+<h2><span class="num">3.</span>Linear attention compresses and decays in working memory</h2>
+
+<p>The first architectural "fix" trades attention's exact-but-expensive log for a <em>fixed-size</em> summary. State-space models like Mamba keep a running state $h_t = \bar{A}_t h_{t-1} + \bar{B}_t x_t$, learning to selectively remember and forget (<a href="https://arxiv.org/abs/2312.00752">Gu &amp; Dao, 2023</a>). Constant memory per token, runs forever, but the summary is lossy and must overwrite old information. Gu calls it "database vs. brain." It's a hard Pareto tradeoff: recall is bounded by state size (<a href="https://arxiv.org/abs/2402.18668">Arora et al., 2024</a>).</p>
+
+<p>Forgetting itself is not the problem; selective forgetting is what makes abstraction possible. Borges' Funes the Memorious remembers everything and is, as a result, incapable of thought: he cannot see why "dog" should cover so many different animals. Abstraction is forgetting on purpose, and the slow cortex earns its concepts by dropping particulars. The trouble is that today's architectures forget in <strong>exactly the wrong place</strong>. Mamba, linear attention, TTT, even Titans bake decay into the <em>working-memory</em> state, which confuses working memory with knowledge. Working memory should not forget at all; it should let the model look back at anything it has seen, exactly, and on that axis <strong>attention is right</strong>. Forgetting belongs in the slow consolidation into long-term knowledge, not in the working-memory buffer.</p>
+
+{{D11}}
+
+<h2><span class="num">4.</span>Test-time training is just linear attention</h2>
+
+<p>The most interesting "fix": make the working-memory state itself a small model, and read by <em>training</em> it. Test-time training (TTT) takes a gradient step on that state for every token, $W_t = W_{t-1} - \eta\,\nabla_W\,\ell(W_{t-1};x_t)$ (<a href="https://arxiv.org/abs/2407.04620">Sun et al., 2024</a>). It sounds like the model is finally learning as it reads. It is not.</p>
+
+<p>The point is not the exact algebra. It is that test-time training is basically just another form of linear attention: in the linear case, TTT-Linear is literally <strong>DeltaNet</strong>, a delta-rule linear attention model. Calling it "training" makes it sound like real learning, but write the update out, name every piece, and the magic disappears.</p>
+
+<div class="deriv">
+  <p><strong>First, the pieces.</strong> Each token is projected into a <em>key</em> $k_t$ and a <em>value</em> $v_t$, exactly as attention makes keys and values: the key says what the token is about, the value is what to return for it. The memory is a matrix $S$ that maps a key to a predicted value, $\hat v = Sk$. To store the association "key $k_t$ returns value $v_t$," you add the <em>outer product</em> $v_tk_t^\top$ to $S$, because that is the matrix which, fed $k_t$, gives back $v_t$. And $\beta_t$ is just how hard you write this token, a per-step learning rate.</p>
+  <p><strong>DeltaNet</strong> does not write blindly. For the current key it first reads what the memory already returns, $\hat v_t=S_{t-1}k_t$, takes the error $v_t-\hat v_t$, and writes only that error back along the key:</p>
+  <p>$$S_t=S_{t-1}+\beta_t\,(v_t-S_{t-1}k_t)\,k_t^\top.$$</p>
+  <p><strong>TTT-Linear</strong> calls the same matrix $W$ and treats it as a tiny linear model $f_W(k)=Wk$. It trains $f$ on the single target $v_t$ with squared loss $\ell_t(W)=\tfrac12\lVert Wk_t-v_t\rVert^2$. The gradient is $\nabla_W\ell_t=(Wk_t-v_t)k_t^\top$, so one gradient step is:</p>
+  <p>$$W_t=W_{t-1}-\eta\,\nabla_W\ell_t=W_{t-1}+\eta\,(v_t-W_{t-1}k_t)\,k_t^\top.$$</p>
+  <p>Rename $W$ to $S$ and the learning rate $\eta$ to $\beta_t$, and the two lines are identical: the same rank-one write of the same prediction error along the same key. The only difference is the story, recurrent context state versus fast weights.</p>
+</div>
+
+{{DCTX}}
+
+<p>DeltaNet and TTT-Linear are just two entries in a whole family of recurrent-update models that trade attention's growing cache for a fixed-size state (<a href="https://arxiv.org/abs/2312.00752">Gu &amp; Dao, 2023</a>; <a href="https://arxiv.org/abs/2405.21060">Dao &amp; Gu, 2024</a>; <a href="https://arxiv.org/abs/2510.26692">Kimi Team, 2025</a>; <a href="https://arxiv.org/abs/2605.22791">Hatamizadeh et al., 2026</a>). They differ mostly in how they erase and write the state, as the table below lays out.</p>
+
+{{DEQ}}
+
+<p>TTT actually runs gradient <em>training</em> at test time, and it still does not solve learning. Since TTT-Linear is exactly DeltaNet, every limit TTT hits, DeltaNet hits too:</p>
+
+<ul>
+<li><strong>The state usually resets.</strong> It is re-initialized every sequence and never folded back into the base model, so the training is thrown away when the sequence ends.</li>
+<li><strong>Even a real gradient write is slow to make safe.</strong> A fast write into shared weights overwrites neighboring knowledge (the catastrophic interference of §6), so a safe update has to be slow.</li>
+<li><strong>Fixed-state models give up attention's exact recall</strong> to make long context cheaper. Richer variants like TTT-MLP and TTT-E2E push the write further (<a href="https://arxiv.org/abs/2512.23675">Tandon et al., 2025</a>), but the update is still context-local unless something saves it.</li>
+</ul>
+
+<p>Calling the update training does not make it learning. These are useful long-context mechanisms, not a fix for the missing write path.</p>
+
+{{FIG:recall}}
+
+<h2><span class="num">5.</span>The agentic hack</h2>
+
+<p>The other "fix" is to optimize everything <em>around</em> a frozen model, escalating in cleverness: prompt engineering → retrieval (RAG) → context compaction → agentic scaffolds → and the recursive end, where the system optimizes its own harness and even evolves its own scaffold. The escalation <em>is</em> the point: it makes a better inferencer out of the same frozen learner. Even when an agent rewrites the agent that writes its own scaffold, it never touches the weights.</p>
+
+<p>It rests on a quiet category error: it treats context as the model's <strong>memory</strong>, when context is really the model's <strong>senses</strong>. The tell is compaction: when the window fills, you summarize and discard, a lossy digest that nothing consolidates. This is the <em>Memento</em> problem from the opening of this essay. The notes can be brilliant, but the agent still wakes each session no smarter than before. Context optimization, long-context methods, RAG, and long-context-style updates will keep getting useful, but they fail as a theory of learning for the same reason: they sharpen inference while leaving memory unwritten. The harness is the tattoos, a remarkable way to cope with amnesia, not a cure.</p>
+
+<p class="part-head">III &middot; How brains do it, and what we have tried</p>
+<h2><span class="num">6.</span>Complementary learning systems: two stores and replay</h2>
+
+<p>Brains face our exact problem (learn fast without overwriting everything), and the answer is well developed: <strong>Complementary Learning Systems</strong> (<a href="https://stanford.edu/~jlmcc/papers/McClellandMcNaughtonOReilly95.pdf">McClelland, McNaughton &amp; O'Reilly, 1995</a>; <a href="https://www.cell.com/trends/cognitive-sciences/fulltext/S1364-6613(16)30043-2">Kumaran, Hassabis &amp; McClelland, 2016</a>). Two systems with opposite settings: a <strong>hippocampus</strong> that records episodes fast, one-shot, kept separate; and a <strong>neocortex</strong> that integrates slowly over many exposures into structured knowledge.</p>
+
+<p>Why two? If you write fast and hard into a dense, distributed memory, it bleeds into everything nearby, <strong>catastrophic interference</strong> (McCloskey &amp; Cohen, 1989; French, 1999). The cortex avoids it by learning slowly and interleaved. The slowness is a feature. It's what protects old knowledge. (Same slowness as the thousand-exposures result. Now you know why.) But slow learning alone couldn't remember this morning, so the hippocampus grabs the episode now and, during rest and sleep, <strong>replays</strong> it to the cortex, interleaved, so it consolidates safely.</p>
+
+<p>Mapped onto an LLM, the neocortex is the only part with an analog, and even it has stopped learning:</p>
+
+<ul>
+<li>The <strong>weights are the neocortex</strong>: general knowledge, slowly consolidated over many exposures during training. But a neocortex keeps consolidating for life, while the weights were frozen the day training ended and never updated since. We have the store, not the slow learner.</li>
+<li><strong>No hippocampus</strong>: no fast, durable, one-shot store. The context window looks like one, but it is wiped when the session ends, so it is scratch paper, not memory.</li>
+<li><strong>No replay</strong>: nothing that consolidates the day's experience into the weights.</li>
+</ul>
+
+<p>The model has a frozen store and a whiteboard wiped between meetings. That is the gap. The good news: brains prove fast, durable, one-shot writing is possible and need <em>not</em> be a slow gradient grind. The hippocampus writes by association in one shot, much closer to a Hopfield network (<a href="https://arxiv.org/abs/2008.02217">Ramsauer et al., 2020</a>) than to a thousand-step optimization.</p>
+
+{{FIG:cls}}
+
+<h2><span class="num">7.</span>The primitive attempts</h2>
+
+<p>If we wanted a model that learns, it would need three capabilities. None is solved, but each has a serious 2025–26 attempt, and how each falls short tells you what's hard.</p>
+
+<ul>
+<li><strong>Write new knowledge.</strong> Model-editing methods such as MEMIT (<a href="https://arxiv.org/abs/2210.07229">Meng et al., 2022</a>) can patch a fact, and SEAL-style systems (<a href="https://arxiv.org/abs/2506.10943">Zweiger et al., 2025</a>) make a model generate its own training data before updating. The hard part is propagation: the fact should affect related answers without causing drift or forgetting.</li>
+<li><strong>Internalize experience.</strong> STaR-style bootstrapping (<a href="https://arxiv.org/abs/2203.14465">Zelikman et al., 2022</a>) turns solved examples into training data, but it depends on a verifier and usually improves only inside a bounded task.</li>
+<li><strong>Keep long-term memory.</strong> Titans-like memory modules (<a href="https://arxiv.org/abs/2501.00663">Behrouz et al., 2025</a>) and external memory systems carry more, but most are still better working memory, not durable self-modification.</li>
+</ul>
+
+<p>All of this needs a <strong>signal</strong>: what is worth keeping, and how good an attempt was. That, plus a store for experience and a write method, is the toolbox the next section specifies.</p>
+
+<p class="part-head">IV &middot; Towards real self-improving agents</p>
+<h2><span class="num">8.</span>The immediate hack: learning as a toolbox</h2>
+
+<p>We have endless data about the world, but almost none about <em>how to learn</em>. Today learning is a fixed recipe: pretraining, then SFT, then RL, the same pipeline for every model and task. People do not learn on a fixed recipe. You imitate, practice, ask a tutor, reflect, and above all <em>consolidate</em>, replaying and recasting an experience until it generalizes, switching between these by what the task allows. Learning should be a <strong>tool the model picks up</strong>, not a rule it is stuck with.</p>
+
+{{FIG:toolbox}}
+
+<p>The toolbox holds three tools.</p>
+
+<ul>
+<li>The <strong>signal</strong> decides what to learn and scores an attempt: evals, verifiers, and environment returns externally; a learned value function or critic internally. External signal is sparse but reliable, internal signal dense but gameable.</li>
+<li>The <strong>data tool</strong> holds experience and synthesizes the training set, the consolidation step. The curse is paid here: one observation is expanded into the many representations retention requires, paraphrases, QA pairs, cloze deletions, contrastive negatives, counterexamples, tool-use traces, schema links, eval probes. EntiGraph (synthetic continued pretraining) and SEAL (self-edits) are instances (<a href="https://arxiv.org/abs/2409.07431">Yang et al., 2024</a>; <a href="https://arxiv.org/abs/2506.10943">Zweiger et al., 2025</a>).</li>
+<li>The <strong>optimization tool</strong> writes to the weights through an interchangeable method, SFT, RL, on-policy distillation, self-distillation, or a localized weight edit, selected by the signal: dense reward to RL, a reference trajectory to SFT, a graded rollout to distillation. Making the write method a runtime choice rather than a fixed pipeline is most of what separates a trained model from a learning one.</li>
+</ul>
+
+<h2><span class="num">9.</span>From wrapped LLM to native learner</h2>
+
+<p>The range has two ends. At one, what we have now: a frozen LLM wrapped in agents and scaffolding. At the other, a native learner rebuilt from scratch, with all four primitives built in, a one-shot hippocampus, a consolidation loop that runs during "sleep," exploration, persistent memory. That is the principled end, and almost certainly where it lands, but brutally hard: redesign the stack, retrain from scratch, and beat a paradigm with a decade of optimization behind it. Every piece is an open problem.</p>
+
+{{FIG:tworoads}}
+
+<p>The <strong>learning agent</strong> sits in between, and it is what can be built today: the frozen transformer wrapped in a loop that generates data, fine-tunes, checks, and repeats, training on data it produces itself rather than data from a larger teacher (the shift SEAL points at). A hack, bolting memory on from outside, but a working one. Two objections bite here. The Bitter Lesson says just scale, but continual learning is the half of it we have not scaled. And periodic retraining suffices only until the model must adapt to one user, now, from a handful of examples. The whole range gets explored, and the learning agent in the middle is the prototype for the right end.</p>
+
+<h2><span class="num">10.</span>How to train the learning agent</h2>
+
+<p>One question is left: who tunes the agent itself? You should not hand-design the recipe, which data to generate, which method to use, what to keep, any more than you hand-design the knowledge. Let the agent search for it, the way evolutionary methods search: propose a variation, evaluate it, keep what works, archive it, repeat. AlphaEvolve, FunSearch, the Darwin Gödel Machine, and Hyperagents show this propose-evaluate-archive loop genuinely discovers: AlphaEvolve even found a way to multiply 4×4 complex matrices in 48 scalar multiplications, beating Strassen's 49 (<a href="https://arxiv.org/abs/2506.13131">Novikov et al., 2025</a>). Aimed at the learning process itself, that loop lets the agent learn how to learn: it evolves better recipes for turning experience into durable skill, instead of running one fixed recipe forever.</p>
+
+{{FIG:evolution}}
+
+<hr/>
+<h2 id="refs-h">References</h2>
+<div class="refs"><ol>
+<li>Geva et al. (2021), <em>Transformer Feed-Forward Layers Are Key-Value Memories.</em> arXiv:2012.14913</li>
+<li>Lample et al. (2019), <em>Large Memory Layers with Product Keys.</em> arXiv:1907.05242</li>
+<li>Berges et al. (2024), <em>Memory Layers at Scale.</em> arXiv:2412.09764</li>
+<li>Allen-Zhu &amp; Li (2024), <em>Physics of Language Models 3.3: Knowledge Capacity Scaling Laws.</em> arXiv:2404.05405</li>
+<li>Morris et al. (2025), <em>How Much Do Language Models Memorize?</em> arXiv:2505.24832</li>
+<li>von Oswald et al. (2023), <em>Transformers Learn In-Context by Gradient Descent.</em> arXiv:2212.07677</li>
+<li>Shen et al. (2023), <em>Do Pretrained Transformers Really Learn In-Context by Gradient Descent?</em> arXiv:2310.08540</li>
+<li>Hendel et al. (2023), <em>In-Context Learning Creates Task Vectors.</em> arXiv:2310.15916</li>
+<li>Liu et al. (2023), <em>Lost in the Middle.</em> arXiv:2307.03172</li>
+<li>Hsieh et al. (2024), <em>RULER.</em> arXiv:2404.06654</li>
+<li>Eyuboglu et al. (2025), <em>Cartridges.</em> arXiv:2506.06266</li>
+<li>Gu &amp; Dao (2023), <em>Mamba.</em> arXiv:2312.00752</li>
+<li>Dao &amp; Gu (2024), <em>Transformers are SSMs: Generalized Models and Efficient Algorithms Through Structured State Space Duality.</em> arXiv:2405.21060</li>
+<li>Arora et al. (2024), <em>Based.</em> arXiv:2402.18668</li>
+<li>Sun et al. (2024), <em>Learning to (Learn at Test Time).</em> arXiv:2407.04620</li>
+<li>Yang, Kautz &amp; Hatamizadeh (2024/2025), <em>Gated Delta Networks: Improving Mamba2 with Delta Rule.</em> arXiv:2412.06464; Kimi Team (2025), <em>Kimi Linear.</em> arXiv:2510.26692; Hatamizadeh, Choi &amp; Kautz (2026), <em>Gated DeltaNet-2.</em> arXiv:2605.22791.</li>
+<li>Tandon et al. (2025), <em>End-to-End Test-Time Training for Long Context.</em> arXiv:2512.23675</li>
+<li>Ba, Hinton et al. (2016), <em>Using Fast Weights to Attend to the Recent Past.</em> arXiv:1610.06258; Hinton &amp; Plaut (1987); Schmidhuber (1992).</li>
+<li>Schlag et al. (2021), <em>Linear Transformers Are Secretly Fast Weight Programmers.</em> arXiv:2102.11174</li>
+<li>Wang et al. (2025), <em>Test-Time Regression.</em> arXiv:2501.12352</li>
+<li>Bailey, Kandel &amp; Harris (2015), <em>Structural Components of Synaptic Plasticity and Memory Consolidation.</em> Cold Spring Harbor Perspectives in Biology; Kandel (2009), <em>The Biology of Memory: A Forty-Year Perspective.</em> Journal of Neuroscience.</li>
+<li>Schultz, Dayan &amp; Montague (1997), <em>A Neural Substrate of Prediction and Reward.</em> Science.</li>
+<li>McCloskey &amp; Cohen (1989), <em>Catastrophic Interference in Connectionist Networks</em>; McClelland, McNaughton &amp; O'Reilly (1995); Kumaran, Hassabis &amp; McClelland (2016), Complementary Learning Systems.</li>
+<li>Tse et al. (2007), <em>Schemas and Memory Consolidation.</em> Science.</li>
+<li>Ramsauer et al. (2020), <em>Hopfield Networks Is All You Need.</em> arXiv:2008.02217</li>
+<li>Zweiger et al. (2025), <em>SEAL.</em> arXiv:2506.10943; Meng et al. (2022), <em>MEMIT.</em> arXiv:2210.07229; Hase et al. (2023), arXiv:2301.04213.</li>
+<li>Zelikman et al. (2022), <em>STaR.</em> arXiv:2203.14465; Yue et al. (2025), arXiv:2504.13837.</li>
+<li>Burda et al. (2018), <em>RND.</em> arXiv:1810.12894; Kirk et al. (2023), arXiv:2310.06452.</li>
+<li>Madaan et al. (2023), <em>Self-Refine: Iterative Refinement with Self-Feedback.</em> arXiv:2303.17651</li>
+<li>Behrouz et al. (2025), <em>Titans.</em> arXiv:2501.00663; <em>Nested Learning.</em> arXiv:2512.24695.</li>
+<li>Novikov et al. (2025), <em>AlphaEvolve.</em> arXiv:2506.13131; Romera-Paredes et al. (2024), <em>FunSearch</em> (Nature); Zhang et al. (2025), <em>Darwin Gödel Machine.</em> arXiv:2505.22954.</li>
+<li>Yang et al. (2024), <em>Synthetic Continued Pretraining (EntiGraph).</em> arXiv:2409.07431.</li>
+<li>Luo et al. (2023), arXiv:2308.08747; Villalobos et al. (2024), arXiv:2211.04325.</li>
+<li>Sutton (2019), <em>The Bitter Lesson</em>; Sutton (2025), Dwarkesh Podcast; Silver &amp; Sutton (2025), <em>The Era of Experience</em>; Borges (1942), <em>Funes the Memorious.</em></li>
+<li>Mitchell (1997), <em>Machine Learning.</em> McGraw-Hill (the experience / task / performance definition, p. 2).</li>
+<li>Hebb (1949), <em>The Organization of Behavior.</em> Wiley (the neurophysiological postulate, p. 62).</li>
+<li>Hassabis (2026), interview with Alex Kantrowitz, <em>Big Technology.</em></li>
+</ol></div>
+'''
+
+BODY_TEMPLATE = BODY
+BODY = BODY.replace("{{DEQ}}", DEQ).replace("{{DCTX}}", DCTX).replace("{{D11}}", D11)
+for k in KEYS:
+    BODY = BODY.replace("{{FIG:%s}}" % k, fig(k))
+
+HEAD = '''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Language Models Can Think, But Not Learn</title>
+<meta name="description" content="Today's LLMs are trained to think, not to learn. The missing write path, with diagrams."/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous"/>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<style>''' + BASE_CSS + FIGCSS + '''</style></head>
+<body>
+<div id="progress"></div>
+<button id="themeToggle" aria-label="Toggle dark mode">&#9680; theme</button>
+<header class="hero">
+  <p class="kicker">Essay &middot; Memory &amp; Learning in LLMs</p>
+  <h1>Language Models Can Think, But Not Learn</h1>
+  <p class="standfirst">Language models can reason over what is in the context window, but they do not have a reliable way to turn new data or new experience into lasting memory.</p>
+  <p class="meta">~20 min read &middot; for ML researchers &middot; all claims sourced below</p>
+</header>
+<article class="wrap">'''
+
+TAIL = '</article><script>' + MAIN_JS + '</script></body></html>'
+
+doc = HEAD + BODY + TAIL
+out = os.path.normpath(os.path.join(HERE, "..", "index.html"))
+open(out, "w").write(doc)
+print("wrote", out, len(doc), "chars; figures injected:", len(KEYS))
+
+# ---------- single-file markdown output (generated from the same source; never hand-edit) ----------
+import re
+
+def _strip_inline(s):
+    s = re.sub(r'<a href="(.*?)">(.*?)</a>', r'[\2](\1)', s, flags=re.S)
+    s = re.sub(r'</?strong>', '**', s)
+    s = re.sub(r'</?em>', '*', s)
+    s = re.sub(r'<code>(.*?)</code>', r'`\1`', s, flags=re.S)
+    s = re.sub(r'<[^>]+>', '', s)
+    s = (s.replace('&amp;', '&').replace('&middot;', '·').replace('&mdash;', ', ')
+          .replace('&hellip;', '...').replace('&#9662;', '').replace('&lt;', '<').replace('&gt;', '>')
+          .replace('&#10003;', '[ok]').replace('&#10007;', '[x]').replace('&nbsp;', ' '))
+    return re.sub(r'[ \t]+', ' ', s).strip()
+
+def _figmeta(html):
+    t = re.search(r'fig-title">(.*?)</p>', html, flags=re.S)
+    c = re.search(r'<figcaption>(.*?)</figcaption>', html, flags=re.S)
+    return (_strip_inline(t.group(1)) if t else ''), (_strip_inline(c.group(1)) if c else '')
+
+def _callout(html):
+    title, cap = _figmeta(html)
+    if cap:
+        return "\n> **Figure: %s**\n>\n> %s\n\n" % (title, cap)
+    return "\n> **Figure: %s**\n\n" % title
+
+def html_to_md(t):
+    for k in KEYS:
+        t = t.replace("{{FIG:%s}}" % k, _callout(fig(k)))
+    t = t.replace("{{DEQ}}", _callout(DEQ)).replace("{{DCTX}}", _callout(DCTX)).replace("{{D11}}", _callout(D11))
+    t = re.sub(r'<nav id="toc-top".*?</nav>', '', t, flags=re.S)
+    t = re.sub(r'<p class="part-head">(.*?)</p>', lambda m: "\n\n# " + _strip_inline(m.group(1)) + "\n\n", t, flags=re.S)
+    t = re.sub(r'<h2><span class="num">(.*?)</span>(.*?)</h2>', lambda m: "\n\n## " + _strip_inline(m.group(1)) + " " + _strip_inline(m.group(2)) + "\n\n", t, flags=re.S)
+    t = re.sub(r'<h2[^>]*>(.*?)</h2>', lambda m: "\n\n## " + _strip_inline(m.group(1)) + "\n\n", t, flags=re.S)
+    def _refs(m):
+        items = re.findall(r'<li>(.*?)</li>', m.group(1), flags=re.S)
+        return "\n\n" + "\n".join("%d. %s" % (i + 1, _strip_inline(it)) for i, it in enumerate(items)) + "\n\n"
+    t = re.sub(r'<div class="refs"><ol>(.*?)</ol></div>', _refs, t, flags=re.S)
+    def _ul(m):
+        items = re.findall(r'<li>(.*?)</li>', m.group(1), flags=re.S)
+        return "\n\n" + "\n".join("- " + _strip_inline(it) for it in items) + "\n\n"
+    t = re.sub(r'<ul>(.*?)</ul>', _ul, t, flags=re.S)
+    def _bq(m):
+        ps = re.findall(r'<p>(.*?)</p>', m.group(1), flags=re.S)
+        return "\n\n" + "\n".join("> " + _strip_inline(p) for p in ps) + "\n\n"
+    t = re.sub(r'<div class="deriv">(.*?)</div>', _bq, t, flags=re.S)
+    t = re.sub(r'<blockquote>(.*?)</blockquote>', _bq, t, flags=re.S)
+    t = re.sub(r'<hr\s*/?>', '\n\n---\n\n', t)
+    t = re.sub(r'<p>(.*?)</p>', lambda m: _strip_inline(m.group(1)) + "\n\n", t, flags=re.S)
+    t = re.sub(r'\n{3,}', '\n\n', t)
+    return t.strip()
+
+TITLE = "Language Models Can Think, But Not Learn"
+STAND = "Language models can reason over what is in the prompt, but they do not have a reliable way to turn new data or new experience into lasting memory. This essay is about that missing write path."
+md = "# %s\n\n*%s*\n\n%s\n" % (TITLE, STAND, html_to_md(BODY_TEMPLATE))
+mdout = os.path.normpath(os.path.join(HERE, "..", "essay.md"))
+open(mdout, "w").write(md)
+print("wrote", mdout, len(md), "chars")

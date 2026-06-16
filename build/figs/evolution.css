@@ -1,0 +1,6 @@
+.ev-svg{width:100%;height:auto;display:block;font-family:var(--sans)}
+.ev-node{fill:var(--panel);stroke:var(--line-strong);stroke-width:1.2}
+.ev-ttl{fill:var(--ink);font-size:14px;font-weight:700}
+.ev-sub{fill:var(--soft);font-size:11px}
+.ev-edge{stroke:var(--soft);stroke-width:1.6;fill:none}
+.ev-loop{fill:var(--faint);font-size:10px;font-weight:800;letter-spacing:.12em}

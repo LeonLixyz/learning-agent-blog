@@ -1,0 +1,36 @@
+<figure class="fig static">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">The evolutionary search loop</p></div>
+  <div class="fig-body">
+    <svg class="ev-svg" viewBox="0 0 680 150" role="img" aria-label="An evolutionary search loop of four stages in a cycle: Propose, where the LLM mutates a candidate; Evaluate, score it on the task; Select, keep what wins; Archive, store the winner; then back to Propose. The model weights are not updated; gains accumulate in the archive.">
+      <defs>
+        <marker id="ev-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M1,1 L9,5 L1,9" fill="none" stroke="var(--soft)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect class="ev-node" x="20" y="22" width="130" height="52" rx="12"/>
+      <text class="ev-ttl" x="85" y="44" text-anchor="middle">Propose</text>
+      <text class="ev-sub" x="85" y="61" text-anchor="middle">mutate a candidate</text>
+
+      <rect class="ev-node" x="190" y="22" width="130" height="52" rx="12"/>
+      <text class="ev-ttl" x="255" y="44" text-anchor="middle">Evaluate</text>
+      <text class="ev-sub" x="255" y="61" text-anchor="middle">score on the task</text>
+
+      <rect class="ev-node" x="360" y="22" width="130" height="52" rx="12"/>
+      <text class="ev-ttl" x="425" y="44" text-anchor="middle">Select</text>
+      <text class="ev-sub" x="425" y="61" text-anchor="middle">keep what wins</text>
+
+      <rect class="ev-node" x="530" y="22" width="130" height="52" rx="12"/>
+      <text class="ev-ttl" x="595" y="44" text-anchor="middle">Archive</text>
+      <text class="ev-sub" x="595" y="61" text-anchor="middle">store the winner</text>
+
+      <line class="ev-edge" x1="152" y1="48" x2="188" y2="48" marker-end="url(#ev-arrow)"/>
+      <line class="ev-edge" x1="322" y1="48" x2="358" y2="48" marker-end="url(#ev-arrow)"/>
+      <line class="ev-edge" x1="492" y1="48" x2="528" y2="48" marker-end="url(#ev-arrow)"/>
+
+      <path class="ev-edge" d="M595,76 C595,116 85,116 85,78" fill="none" marker-end="url(#ev-arrow)"/>
+      <text class="ev-loop" x="340" y="112" text-anchor="middle">REPEAT</text>
+    </svg>
+  </div>
+  <figcaption>Evolutionary search: propose a variation, evaluate it, select the winners, archive them, repeat (AlphaEvolve, FunSearch, the Darwin Gödel Machine, Hyperagents). The weights are never updated; gains accumulate in the archive, so the loop drives discovery but is not itself the write path.</figcaption>
+</figure>

@@ -1,0 +1,50 @@
+<figure class="fig">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">Context fills, then is wiped at session end</p></div>
+  <div class="fig-body">
+    <svg class="mm-svg" viewBox="0 0 700 284" role="img" aria-label="On the left, the model's weights, frozen. On the right, the context window: as the model works through a session (read docs, plan, attempt, hit an error, fix it, done) its KV cache fills step by step, then the whole thing is wiped when the session ends. A crossed-out arrow shows there is no write path from the session back into the weights.">
+      <defs>
+        <marker id="mm-x" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--hippo)"/></marker>
+      </defs>
+
+      <!-- LEFT: the weights (frozen) -->
+      <text class="mm-title" x="140" y="30" text-anchor="middle">the weights  🔒</text>
+      <rect class="mm-block" x="40" y="40" width="200" height="172" rx="14"/>
+      <rect class="mm-mlp" x="60" y="58" width="160" height="56" rx="11"/>
+      <text class="mm-title" x="140" y="91" text-anchor="middle">Feed-forward (MLP)</text>
+      <rect class="mm-attn" x="60" y="138" width="160" height="56" rx="11"/>
+      <text class="mm-title" x="140" y="171" text-anchor="middle">Self-attention</text>
+
+      <!-- RIGHT: the context window (session + KV cache) -->
+      <text class="mm-title" x="510" y="30" text-anchor="middle">the context window</text>
+      <rect class="mm-zone" x="360" y="40" width="300" height="172" rx="14"/>
+
+      <g class="mm-step mm-s1"><rect class="mm-chip" x="372" y="56" width="90" height="28" rx="8"/><text class="mm-chiptxt" x="417" y="75" text-anchor="middle">read docs</text></g>
+      <g class="mm-step mm-s2"><rect class="mm-chip" x="468" y="56" width="90" height="28" rx="8"/><text class="mm-chiptxt" x="513" y="75" text-anchor="middle">make a plan</text></g>
+      <g class="mm-step mm-s3"><rect class="mm-chip" x="564" y="56" width="90" height="28" rx="8"/><text class="mm-chiptxt" x="609" y="75" text-anchor="middle">attempt</text></g>
+      <g class="mm-step mm-s4"><rect class="mm-chip" x="372" y="92" width="90" height="28" rx="8"/><text class="mm-chiptxt" x="417" y="111" text-anchor="middle">hit an error</text></g>
+      <g class="mm-step mm-s5"><rect class="mm-chip" x="468" y="92" width="90" height="28" rx="8"/><text class="mm-chiptxt" x="513" y="111" text-anchor="middle">fix it</text></g>
+      <g class="mm-step mm-s6"><rect class="mm-chip" x="564" y="92" width="90" height="28" rx="8"/><text class="mm-chiptxt" x="609" y="111" text-anchor="middle">✓ done</text></g>
+
+      <text class="mm-clbl" x="376" y="142">KV cache</text>
+      <rect class="mm-cell mm-step mm-d1" x="372" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d1" x="394" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d2" x="416" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d2" x="438" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d3" x="460" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d3" x="482" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d4" x="504" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d4" x="526" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d5" x="548" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d5" x="570" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d6" x="592" y="148" width="18" height="20" rx="3"/>
+      <rect class="mm-cell mm-step mm-d6" x="614" y="148" width="18" height="20" rx="3"/>
+
+      <g class="mm-wipe"><rect x="366" y="52" width="288" height="70" rx="11"/><text x="510" y="91" text-anchor="middle">session ends → wiped</text></g>
+
+      <!-- no write path: nothing flows from the session back into the weights -->
+      <path class="mm-nowrite" d="M 500 212 V 246 H 140 V 216" stroke-dasharray="7 6" marker-end="url(#mm-x)"/>
+      <text class="mm-nox" x="318" y="252" text-anchor="middle">✗</text>
+      <text class="mm-nolbl" x="346" y="270" text-anchor="middle">no write path</text>
+    </svg>
+  </div>
+</figure>

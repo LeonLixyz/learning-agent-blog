@@ -1,0 +1,65 @@
+<figure class="fig static">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">The three memory stages: brain vs LLM</p></div>
+  <div class="fig-body">
+    <div class="bm-wrap" role="img" aria-label="A stage-by-stage comparison of the brain's Complementary Learning Systems against an LLM. Three stages run as a pipeline from experience to durable knowledge. Stage one, the hippocampus, a fast one-shot store that captures each new episode: the brain has it; the LLM is missing it, because the context window is wiped each session. Stage two, replay, the consolidation bridge that during rest and sleep replays episodes to the cortex without overwriting old knowledge: the brain has it; the LLM is missing it, because nothing carries a session's experience into the weights. Stage three, the neocortex, the slow store that integrates over many exposures into durable knowledge: the brain has it; the LLM has it only in part, as the trained weights, present but frozen and never updated after training. The LLM column reads missing, missing, partial: only the last stage survives, and even it no longer changes, so there is no write path from experience into the weights.">
+
+      <div class="bm-grid">
+        <div class="bm-h bm-h-stage">Stage in the pipeline</div>
+        <div class="bm-h bm-h-brain">Brain<span class="bm-h-sub">complementary learning systems</span></div>
+        <div class="bm-h bm-h-llm">LLM<span class="bm-h-sub">weights + context window</span></div>
+
+        <div class="bm-stage bm-s-hippo">
+          <div class="bm-stage-top"><span class="bm-num">1</span><span class="bm-stage-name">Hippocampus</span></div>
+          <div class="bm-stage-role"><b>Fast write.</b> Captures a new episode in one shot, keeps episodes separate.</div>
+        </div>
+        <div class="bm-cell bm-present bm-c-hippo">
+          <span class="bm-mark bm-yes" aria-hidden="true">&#10003;</span>
+          <span class="bm-verdict">Present</span>
+          <span class="bm-note">grabs the episode now</span>
+        </div>
+        <div class="bm-cell bm-absent">
+          <span class="bm-mark bm-no" aria-hidden="true">&#10007;</span>
+          <span class="bm-verdict bm-verdict-miss">Missing</span>
+          <span class="bm-note">context window is wiped each session: scratch paper, not memory</span>
+        </div>
+
+        <div class="bm-stage bm-s-replay">
+          <div class="bm-stage-top"><span class="bm-num">2</span><span class="bm-stage-name">Replay</span></div>
+          <div class="bm-stage-role"><b>Consolidation bridge.</b> During sleep, replays episodes to the cortex, interleaved, without overwriting.</div>
+        </div>
+        <div class="bm-cell bm-present bm-c-replay">
+          <span class="bm-mark bm-yes" aria-hidden="true">&#10003;</span>
+          <span class="bm-verdict">Present</span>
+          <span class="bm-note">carries experience inward</span>
+        </div>
+        <div class="bm-cell bm-absent">
+          <span class="bm-mark bm-no" aria-hidden="true">&#10007;</span>
+          <span class="bm-verdict bm-verdict-miss">Missing</span>
+          <span class="bm-note">nothing consolidates a session's experience into the weights</span>
+        </div>
+
+        <div class="bm-stage bm-s-cortex">
+          <div class="bm-stage-top"><span class="bm-num">3</span><span class="bm-stage-name">Neocortex</span></div>
+          <div class="bm-stage-role"><b>Slow store.</b> Integrates over many exposures into general, durable knowledge.</div>
+        </div>
+        <div class="bm-cell bm-present bm-c-cortex">
+          <span class="bm-mark bm-yes" aria-hidden="true">&#10003;</span>
+          <span class="bm-verdict">Present</span>
+          <span class="bm-note">slow cortical knowledge</span>
+        </div>
+        <div class="bm-cell bm-partial bm-c-cortex">
+          <span class="bm-mark bm-half" aria-hidden="true">&#9680;</span>
+          <span class="bm-verdict bm-verdict-half">Partial</span>
+          <span class="bm-note"><b>= the weights</b>: present, but frozen and never updated</span>
+        </div>
+      </div>
+
+      <div class="bm-foot">
+        <span class="bm-foot-flow">experience &#8594; <s class="bm-gone">fast write</s> &#8594; <s class="bm-gone">consolidate</s> &#8594; durable knowledge</span>
+        <span class="bm-foot-gap">The LLM has only the last stage. With the first two missing, there is <b>no write path</b> from experience into the weights.</span>
+      </div>
+
+    </div>
+  </div>
+  <figcaption>The brain solves "learn fast without overwriting everything" with three stages: a hippocampus that writes each episode in one shot, replay that consolidates it during sleep, and a neocortex that slowly builds durable knowledge. Mapped onto an LLM, only the neocortex survives, as the frozen weights. The fast write and the consolidation that would carry a session's experience into those weights are both missing, which is why the model wakes each session no smarter than before.</figcaption>
+</figure>

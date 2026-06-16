@@ -1,0 +1,56 @@
+<figure class="fig static">
+  <div class="fig-head"><span class="fig-tag">Figure</span><p class="fig-title">The learning agent's toolbox</p></div>
+  <div class="fig-body">
+    <div class="tb-wrap" role="img" aria-label="The learning agent's toolbox, three compartments feeding a loop. Signal decides what is worth learning and how good an attempt was, drawing on external sources (unit tests, verifiers, eval suites, tool and environment results, human feedback) and internal ones (a critic or LLM-as-judge, a value function, a reward model). Data holds experience and manufactures the replay: store experience, replay, synthetic QA, rewrite, annotation, self-reflection. Optimization writes it into the weights: SFT, RL, on-policy distillation, self-distillation, memory edit. The loop runs signal to data to optimization and repeats.">
+      <div class="tb-row">
+
+        <div class="tb-tray tb-sig">
+          <div class="tb-tab">Signal</div>
+          <div class="tb-role">What is worth learning, and how good was the attempt</div>
+          <div class="tb-sub">External &middot; trustworthy, sparse</div>
+          <div class="tb-chips">
+            <span class="tb-chip">unit tests</span>
+            <span class="tb-chip">verifiers</span>
+            <span class="tb-chip">eval suites</span>
+            <span class="tb-chip">tool &amp; env results</span>
+            <span class="tb-chip">human feedback</span>
+          </div>
+          <div class="tb-sub">Internal &middot; cheap, gameable</div>
+          <div class="tb-chips">
+            <span class="tb-chip">critic (LLM-as-judge)</span>
+            <span class="tb-chip">value function</span>
+            <span class="tb-chip">reward model</span>
+          </div>
+        </div>
+
+        <div class="tb-tray tb-data">
+          <div class="tb-tab">Data</div>
+          <div class="tb-role">Hold the experience and manufacture the replay</div>
+          <div class="tb-chips">
+            <span class="tb-chip">store experience</span>
+            <span class="tb-chip">replay</span>
+            <span class="tb-chip">synthetic QA</span>
+            <span class="tb-chip">rewrite</span>
+            <span class="tb-chip">annotation</span>
+            <span class="tb-chip">self-reflection</span>
+          </div>
+        </div>
+
+        <div class="tb-tray tb-opt">
+          <div class="tb-tab">Optimization</div>
+          <div class="tb-role">Write it into the weights</div>
+          <div class="tb-chips">
+            <span class="tb-chip">SFT</span>
+            <span class="tb-chip">RL</span>
+            <span class="tb-chip">on-policy distillation</span>
+            <span class="tb-chip">self-distillation</span>
+            <span class="tb-chip">memory edit</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="tb-loop"><b>The loop:</b> the signal picks what matters, the data tool replays it, optimization writes it into the weights, repeat. The model chooses which tools to use instead of running one fixed recipe.</div>
+    </div>
+  </div>
+  <figcaption>Three tools, run as a loop. Signal: what to learn and how good an attempt was. Data: hold experience and synthesize the replay. Optimization: write it to the weights through an interchangeable method (SFT, RL, distillation, memory edit).</figcaption>
+</figure>

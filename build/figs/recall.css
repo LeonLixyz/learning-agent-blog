@@ -1,0 +1,8 @@
+.rc-table{width:100%;border-collapse:separate;border-spacing:3px;font-family:var(--sans);font-size:12px}
+.rc-table th{font-size:10.5px;font-weight:700;color:var(--soft);text-align:center;padding:4px 4px 6px}
+.rc-table th.mh{text-align:left}
+.rc-table td.m{text-align:left;color:var(--ink);font-weight:700;white-space:nowrap;padding-right:8px}
+.rc-cell{text-align:center;padding:6px 4px;border-radius:5px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.rc-hi{background:color-mix(in srgb,var(--good) 40%,transparent)}
+.rc-mid{background:color-mix(in srgb,var(--partial) 32%,transparent)}
+.rc-lo{background:color-mix(in srgb,var(--hippo) 20%,transparent);color:var(--faint)}
